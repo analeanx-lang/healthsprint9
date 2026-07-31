@@ -6,129 +6,192 @@
 <title>Health Sprint · Check-in ao vivo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0d2320; --bg-2:#122b27; --bg-3:#16332e; --line:#1f453f;
-  --text:#EEF0E8; --muted:#8fa39c;
-  --gold:#E8943A; --gold-soft:rgba(232,148,58,.14);
-  --danger:#FF5C3A; --ok:#4ADE80;
+  --bg:#0c211E; --bg-2:#112a26; --bg-3:#16332e;
+  --line:#1e3f39; --line-2:#2a544c;
+  --text:#EDF1EA; --muted:#9FB2A9; --muted-2:#7b8f87;
+  --gold:#E8943A; --gold-lift:#F2A85A; --gold-soft:rgba(232,148,58,.12);
+  --danger:#FF6B4A; --ok:#5BE08D;
+  --r:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
   background:var(--bg); color:var(--text);
-  font-family:'Montserrat',system-ui,sans-serif;
-  padding:22px 18px 60px; min-height:100vh;
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  padding:26px 20px 64px;
+  font-variant-numeric:tabular-nums;
 }
-.wrap{max-width:1180px;margin:0 auto}
+.wrap{max-width:1200px;margin:0 auto}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
 
-/* ---------- header ---------- */
-header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
-.brand .kicker{font-size:9.5px;font-weight:800;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
-.brand h1{font-size:31px;font-weight:900;letter-spacing:-.5px;line-height:1}
-.brand .sub{font-size:11.5px;font-weight:600;color:var(--muted);margin-top:6px}
-.live{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.pulse{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted)}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+/* ---------- cabecalho ---------- */
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:26px}
+.brand .kicker{
+  font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:8px
+}
+.brand h1{
+  font-family:'Montserrat',sans-serif;
+  font-size:clamp(26px,3.4vw,36px);font-weight:800;letter-spacing:-.02em;line-height:1.05
+}
+.brand .sub{font-size:14px;font-weight:400;color:var(--muted);margin-top:7px}
+.live{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pulse{
+  display:flex;align-items:center;gap:8px;margin-right:4px;
+  font-size:12px;font-weight:500;color:var(--muted)
+}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:blink 2.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .btn{
-  background:transparent;border:1.5px solid var(--line);color:var(--text);
-  font-family:inherit;font-size:10px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;
-  padding:9px 15px;border-radius:7px;cursor:pointer;transition:.15s;text-decoration:none;display:inline-block
+  background:transparent;border:1px solid var(--line-2);color:var(--text);
+  font-family:inherit;font-size:13px;font-weight:500;
+  padding:10px 16px;border-radius:9px;cursor:pointer;
+  transition:border-color .15s,color .15s,background .15s;text-decoration:none;display:inline-block
 }
-.btn:hover{border-color:var(--gold);color:var(--gold)}
-.btn.solid{background:var(--gold);border-color:var(--gold);color:#0d2320}
-.btn.solid:hover{filter:brightness(1.1);color:#0d2320}
+.btn:hover{border-color:var(--gold);color:var(--gold-lift)}
+.btn.solid{background:var(--gold);border-color:var(--gold);color:#0c211E;font-weight:600}
+.btn.solid:hover{background:var(--gold-lift);border-color:var(--gold-lift);color:#0c211E}
 
-/* ---------- kpis ---------- */
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
-.kpi{background:var(--bg-2);border:1.5px solid var(--line);border-radius:12px;padding:16px 18px}
-.kpi .lbl{font-size:8.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
-.kpi .val{font-size:38px;font-weight:900;line-height:.9;letter-spacing:-1.5px}
-.kpi .foot{font-size:10px;font-weight:700;color:var(--muted);margin-top:8px}
-.kpi.hero{background:var(--gold-soft);border-color:var(--gold)}
-.kpi.hero .val{color:var(--gold)}
+/* ---------- indicadores ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:14px;margin-bottom:14px}
+.kpi{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+.kpi .lbl{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:10px}
+.kpi .val{
+  font-family:'Montserrat',sans-serif;
+  font-size:42px;font-weight:800;line-height:.92;letter-spacing:-.03em
+}
+.kpi .foot{font-size:12.5px;font-weight:400;color:var(--muted-2);margin-top:9px}
+.kpi.hero{background:var(--gold-soft);border-color:rgba(232,148,58,.45)}
+.kpi.hero .val{color:var(--gold-lift)}
+.kpi.hero .lbl{color:var(--gold)}
 .kpi.warn .val{color:var(--danger)}
 
-.progress{background:var(--bg-2);border:1.5px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:22px}
-.progress .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px}
-.progress .top span:first-child{font-size:8.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
-.progress .top span:last-child{font-size:13px;font-weight:900;color:var(--gold)}
-.bar{height:9px;background:#0a1b19;border-radius:99px;overflow:hidden}
-.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#f6b35f);border-radius:99px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.progress{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-bottom:26px}
+.progress .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:13px}
+.progress .top span:first-child{font-size:12px;font-weight:500;color:var(--muted)}
+.progress .top span:last-child{font-family:'Montserrat',sans-serif;font-size:17px;font-weight:800;color:var(--gold-lift);letter-spacing:-.02em}
+.bar{height:8px;background:#0a1917;border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-lift));border-radius:99px;transition:width .7s cubic-bezier(.2,.8,.2,1)}
 
-/* ---------- controls ---------- */
-.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:18px}
+/* ---------- controles ---------- */
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px}
 input[type=search]{
-  flex:1;min-width:220px;background:var(--bg-2);border:1.5px solid var(--line);
-  color:var(--text);font-family:inherit;font-size:13px;font-weight:600;
-  padding:11px 15px;border-radius:8px;outline:none
+  flex:1;min-width:240px;background:var(--bg-2);border:1px solid var(--line);
+  color:var(--text);font-family:inherit;font-size:14.5px;font-weight:400;
+  padding:12px 16px;border-radius:10px;outline:none;transition:border-color .15s
 }
 input[type=search]:focus{border-color:var(--gold)}
-input[type=search]::placeholder{color:var(--muted)}
+input[type=search]::placeholder{color:var(--muted-2)}
 .chip{
-  background:var(--bg-2);border:1.5px solid var(--line);color:var(--muted);
-  font-family:inherit;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
-  padding:10px 14px;border-radius:8px;cursor:pointer;transition:.15s;white-space:nowrap
+  background:var(--bg-2);border:1px solid var(--line);color:var(--muted);
+  font-family:inherit;font-size:13.5px;font-weight:500;
+  padding:11px 16px;border-radius:10px;cursor:pointer;white-space:nowrap;
+  transition:color .15s,border-color .15s,background .15s
 }
-.chip:hover{color:var(--text)}
-.chip.on{background:var(--gold);border-color:var(--gold);color:#0d2320}
-.chip b{font-weight:900}
+.chip:hover{color:var(--text);border-color:var(--line-2)}
+.chip.on{background:var(--gold);border-color:var(--gold);color:#0c211E;font-weight:600}
+.chip b{font-weight:700;margin-left:3px}
 
 /* ---------- cards ---------- */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
 .card{
-  background:var(--bg-2);border:1.5px solid var(--line);border-left:4px solid var(--line);
-  border-radius:11px;padding:15px 17px;transition:.18s
+  background:var(--bg-2);border:1px solid var(--line);
+  border-radius:var(--r);padding:18px 20px;position:relative;overflow:hidden;
+  transition:border-color .18s,background .18s
 }
-.card:hover{border-color:var(--line);background:var(--bg-3)}
-.card.here{border-left-color:var(--gold)}
-.card.canc{opacity:.42;border-left-color:var(--danger)}
-.card.novo{animation:arrived 2.4s ease-out 3}
-@keyframes arrived{0%,100%{box-shadow:0 0 0 0 rgba(232,148,58,0)}45%{box-shadow:0 0 0 5px rgba(232,148,58,.28)}}
-.card .row1{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.card .nome{font-size:14.5px;font-weight:800;line-height:1.25}
-.tag{font-size:7.5px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase;padding:4px 9px;border-radius:99px;white-space:nowrap}
-.tag.here{background:var(--gold);color:#0d2320}
-.tag.wait{background:var(--bg-3);color:var(--muted);border:1px solid var(--line)}
-.tag.canc{background:transparent;color:var(--danger);border:1px solid var(--danger)}
-.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.meta span{font-size:8px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:3px 8px;border-radius:5px}
-.qa{margin-top:12px;padding-top:11px;border-top:1px solid var(--line);display:grid;gap:9px}
-.qa .q{font-size:7.5px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
-.qa .a{font-size:12px;font-weight:600;line-height:1.45;color:var(--text)}
-.qa .a.empty{color:var(--muted);font-style:italic;font-weight:500}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line-2)}
+.card:hover{background:var(--bg-3);border-color:var(--line-2)}
+.card.here::before{background:var(--gold)}
+.card.canc{opacity:.45}
+.card.canc::before{background:var(--danger)}
+.card.novo{animation:chegou 2.6s ease-out 3}
+@keyframes chegou{0%,100%{box-shadow:0 0 0 0 rgba(232,148,58,0)}45%{box-shadow:0 0 0 4px rgba(232,148,58,.22)}}
+.card .row1{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.card .nome{font-size:16.5px;font-weight:600;line-height:1.3;letter-spacing:-.01em}
+.tag{
+  font-size:11px;font-weight:600;letter-spacing:.02em;
+  padding:5px 11px;border-radius:99px;white-space:nowrap;flex-shrink:0
+}
+.tag.here{background:var(--gold);color:#0c211E}
+.tag.wait{background:transparent;color:var(--muted);border:1px solid var(--line-2)}
+.tag.canc{background:transparent;color:var(--danger);border:1px solid rgba(255,107,74,.5)}
+.meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+.meta span{
+  font-size:12px;font-weight:500;color:var(--muted);
+  background:var(--bg);border:1px solid var(--line);padding:4px 10px;border-radius:6px
+}
+.qa{margin-top:15px;padding-top:14px;border-top:1px solid var(--line);display:grid;gap:13px}
+.qa .q{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.qa .a{font-size:14.5px;font-weight:400;line-height:1.55;color:var(--text)}
+.qa .a.empty{color:var(--muted-2);font-style:italic}
 
-.diag{
+.acoes{display:flex;gap:9px;margin-top:16px}
+.acoes>*{flex:1;min-width:0}
+.insta,.diag{
   display:flex;align-items:center;justify-content:center;gap:7px;
-  margin-top:12px;padding:10px;border-radius:8px;text-decoration:none;
-  background:var(--gold);color:#0d2320;
-  font-size:9.5px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase;transition:.15s
+  padding:11px 10px;border-radius:9px;text-decoration:none;
+  font-family:inherit;font-size:13px;font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:.15s
 }
-.diag:hover{filter:brightness(1.12)}
-.diag.off{background:transparent;border:1.5px dashed var(--line);color:var(--muted);cursor:not-allowed;letter-spacing:1.2px}
+.insta{background:transparent;border:1px solid var(--line-2);color:var(--muted)}
+.insta:hover{border-color:var(--gold);color:var(--gold-lift)}
+.diag{background:var(--gold);color:#0c211E;font-weight:600;border:1px solid var(--gold)}
+.diag:hover{background:var(--gold-lift);border-color:var(--gold-lift)}
+.insta.off,.diag.off{
+  background:transparent;border:1px dashed var(--line-2);color:var(--muted-2);
+  font-weight:400;cursor:default
+}
 
-.empty-state{text-align:center;padding:52px 20px;color:var(--muted);font-size:13px;font-weight:600}
+.empty-state{
+  grid-column:1/-1;text-align:center;padding:60px 24px;
+  color:var(--muted);font-size:15px;
+  border:1px dashed var(--line-2);border-radius:var(--r)
+}
 
-/* ---------- breakdown ---------- */
-.section-title{font-size:9px;font-weight:900;letter-spacing:2.4px;text-transform:uppercase;color:var(--muted);margin:30px 0 12px}
-.prods{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.prod{background:var(--bg-2);border:1.5px solid var(--line);border-radius:10px;padding:13px 15px}
-.prod .n{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.prod .v{font-size:22px;font-weight:900}
-.prod .v small{font-size:12px;font-weight:700;color:var(--muted)}
+/* ---------- rodape de produtos ---------- */
+.section-title{
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted-2);margin:34px 0 14px
+}
+.prods{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}
+.prod{background:var(--bg-2);border:1px solid var(--line);border-radius:11px;padding:15px 17px}
+.prod .n{font-size:12.5px;font-weight:500;color:var(--muted);margin-bottom:9px}
+.prod .v{font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.03em}
+.prod .v small{font-size:15px;font-weight:600;color:var(--muted-2);letter-spacing:0}
 
-/* ---------- banner ---------- */
+/* ---------- avisos ---------- */
 .banner{
-  background:var(--gold-soft);border:1.5px solid var(--gold);border-radius:10px;
-  padding:12px 16px;margin-bottom:18px;font-size:11.5px;font-weight:700;line-height:1.5;color:var(--gold)
+  background:var(--gold-soft);border:1px solid rgba(232,148,58,.45);border-radius:11px;
+  padding:15px 18px;margin-bottom:20px;font-size:14px;line-height:1.55;color:var(--gold-lift)
 }
-.banner code{background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-size:10.5px;font-family:ui-monospace,monospace}
-.banner a{color:var(--gold)}
-footer{margin-top:38px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
-footer span{font-size:7.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
-footer span.tag-gh::before{content:'';display:inline-block;width:5px;height:5px;background:var(--gold);margin-right:7px;vertical-align:middle}
-@media(max-width:600px){.brand h1{font-size:24px}.kpi .val{font-size:30px}}
+.banner b{font-weight:600;color:var(--gold)}
+.banner code{background:rgba(0,0,0,.3);padding:2px 7px;border-radius:5px;font-size:13px;font-family:ui-monospace,monospace}
+
+footer{
+  margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px
+}
+footer span{font-size:12.5px;font-weight:400;color:var(--muted-2)}
+footer span.tag-gh{color:var(--muted)}
+footer span.tag-gh::before{
+  content:'';display:inline-block;width:6px;height:6px;border-radius:1px;
+  background:var(--gold);margin-right:9px;vertical-align:middle
+}
+
+@media(max-width:640px){
+  body{padding:20px 15px 48px}
+  .grid{grid-template-columns:1fr}
+  .kpi .val{font-size:34px}
+  .live{width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
 </style>
 </head>
 <body>
@@ -212,6 +275,61 @@ const FONTES = () => [
 const norm = s => (s||'').toString().trim().toLowerCase()
   .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 
+/* Instagram — extraído da aba de respostas do formulário.
+   Se a aba do dia ganhar uma coluna "Instagram", ela tem prioridade sobre este mapa. */
+const INSTA = {
+  'marlon anderson santos batista': 'Dr.marlonbatista',
+  'paulo ney sierra': 'drpauloneysierra',
+  'jessica sierra': 'Dra.jessicasierra',
+  'eder ferreira': 'Dr_Ederferreira',
+  'janisa ramos': 'Janisa_ramos',
+  'olivia costa ribeiro de oliveira': 'dra.oliviacro',
+  'anna carolina polloni': 'draanna.carolina',
+  'danielle mendonca andrade vigiano': 'dradanivigiano.pediatra',
+  'bruno bindi': 'drbrunobindi',
+  'rafael ultramar': 'Dr.rafaelultramar',
+  'fernando campos cunha goncalves': 'dr.fernandouro',
+  'steven queiroz miranda': 'Drstevenmiranda',
+  'juliana lopes da cruz rocha': 'Dra_julianalopesrocha',
+  'ronald rocha da silva': 'drronald.oftalmo',
+  'manoel felipe quintino rodrigues da silva': 'drmanoelquintino',
+  'frederico teixeira izidorio': 'drfredericoizidorio',
+  'youssef khalil': 'Doutoryou',
+  'tatiana silva schmuziger': 'dra.tatiana_vascular',
+  'marcel nunes': 'drmarcelnunes',
+  'vinicius mello': 'dr.viniciusmello',
+  'silverio rodrigues calaca': 'Calacasilverio',
+  'amanda teixeira': 'amandateixeira.m',
+  'ane karoline ranzi': 'anekranzi',
+  'felipe thereza': 'felipethereza',
+  'elisa soares': 'dra.elisarsoares',
+  'ana beatriz tramontina machado silva': 'Dra.anatramontina',
+  'ana luiza carvalho': 'Dranaluiza.carvalho',
+  'acaua santos': 'acauavic',
+  'rafael hamada leite': 'drrafaelhamada.ortopedista',
+  'carlos francisco barroso torres': 'doutorcarlostorres',
+  'camila porto oliveira': 'Dracamilaportto',
+  'valter da silva cardoso filho': 'Dr.Velterfilho',
+  'diego augusto ramos azevedo': 'drdiegoramosa',
+  'carolina braga': 'dra.carolinagbraga',
+  'caroline ringvelski': 'carolringvelski',
+  'emily paola': 'drapaolaperi',
+  'curt vieira': 'drcurtvieira'
+};
+const linkInsta = nome => {
+  const n = norm(nome);
+  let h = INSTA[n];
+  if(!h){
+    const p = n.split(/\s+/);
+    const chave = Object.keys(INSTA).find(k => {
+      const q = k.split(/\s+/);
+      return q[0] === p[0] && q[q.length-1] === p[p.length-1];
+    });
+    h = chave ? INSTA[chave] : '';
+  }
+  return h ? { url: 'https://instagram.com/' + h.replace(/^@/,''), arroba: '@' + h.replace(/^@/,'') } : null;
+};
+
 const DIAG_FOLDER = 'https://drive.google.com/drive/folders/1oERFFcMo0i9kqqfdrR6bZ4GWPgrtfjvB';
 document.getElementById('folderlink').href = DIAG_FOLDER;
 const DIAG = {
@@ -287,7 +405,7 @@ const DEMO = [
 ["Curt Vieira","—","","CONFIRMADO","","","TRUE","ideias para low ticket, estruturação de ideias, potencializar instagram","CONCILIAR FÍSICO COM DIGITAL"]
 ].map(r => ({
   nome:r[0], produto:r[1], form:r[2], status:r[3], email:r[4],
-  whats:r[5], presente:r[6]==='TRUE', busca:r[7], dif:r[8], diag:linkDiag(r[0])
+  whats:r[5], presente:r[6]==='TRUE', busca:r[7], dif:r[8], diag:linkDiag(r[0]), insta:linkInsta(r[0])
 }));
 
 /* ============================================================
@@ -349,7 +467,8 @@ function mapRows(rows){
     pres:    col('presenca','presença','presenca:'),
     busca:   col('busca hoje','o que voce busca'),
     dif:     col('maior dificuldade'),
-    diag:    col('diagnostico','relatorio')
+    diag:    col('diagnostico','relatorio'),
+    insta:   col('instagram','@')
   };
   let presAuto = false;
   const colVazia = c => c < 0 ||
@@ -370,15 +489,35 @@ function mapRows(rows){
     valoresBrutosStatus:   [...new Set(rows.slice(hIdx+1).map(r => i.status>=0 ? (r[i.status]||'(vazio)') : '(coluna nao achada)'))].slice(0,12),
     primeiraLinhaDeDados: rows[hIdx+1]
   };
-  return rows.slice(hIdx+1)
+  const registros = rows.slice(hIdx+1)
     .filter(r => get(r,'nome'))
     .map(r => ({
       nome:get(r,'nome'), produto:get(r,'produto')||'—', form:get(r,'form'),
       status:get(r,'status')||'CONFIRMADO', email:get(r,'email'), whats:get(r,'whats'),
       presente:ehPresente(get(r,'pres')),
       busca:get(r,'busca'), dif:get(r,'dif'),
-      diag:(get(r,'diag').startsWith('http') ? get(r,'diag') : '') || linkDiag(get(r,'nome'))
+      diag:(get(r,'diag').startsWith('http') ? get(r,'diag') : '') || linkDiag(get(r,'nome')),
+      insta:(() => {
+        const c = get(r,'insta').replace(/^@/,'').trim();
+        return c ? { url:'https://instagram.com/'+c, arroba:'@'+c } : linkInsta(get(r,'nome'));
+      })()
     }));
+
+  /* Nomes repetidos viram um registro so: presente vence ausente,
+     e campo preenchido vence campo vazio. */
+  const porNome = new Map();
+  for(const p of registros){
+    const k = norm(p.nome);
+    if(!porNome.has(k)){ porNome.set(k, p); continue; }
+    const a = porNome.get(k);
+    a.presente = a.presente || p.presente;
+    for(const campo of ['produto','form','status','email','whats','busca','dif','diag','insta']){
+      if(!a[campo] && p[campo]) a[campo] = p[campo];
+    }
+    if(norm(p.status).includes('cancel')) a.status = p.status;
+  }
+  DBG.duplicadosUnificados = registros.length - porNome.size;
+  return [...porNome.values()];
 }
 
 /* ============================================================
@@ -429,9 +568,13 @@ function render(){
         <div><div class="q">Maior dificuldade</div>
           <div class="a${p.dif?'':' empty'}">${p.dif ? cap(p.dif) : 'não respondeu'}</div></div>
       </div>` : '';
-    const btn = cancelado(p) ? '' : p.diag
-      ? `<a class="diag" href="${p.diag}" target="_blank" rel="noopener">▤ Abrir diagnóstico</a>`
-      : `<div class="diag off">sem diagnóstico no Drive</div>`;
+    const bDiag = p.diag
+      ? `<a class="diag" href="${p.diag}" target="_blank" rel="noopener">Ver diagnóstico</a>`
+      : `<div class="diag off">Sem diagnóstico</div>`;
+    const bInsta = p.insta
+      ? `<a class="insta" href="${p.insta.url}" target="_blank" rel="noopener">${p.insta.arroba}</a>`
+      : `<div class="insta off">Sem Instagram</div>`;
+    const btn = cancelado(p) ? '' : `<div class="acoes">${bInsta}${bDiag}</div>`;
     return `<div class="card ${c}${novo}">
       <div class="row1"><div class="nome">${p.nome}</div>${tag}</div>
       <div class="meta">
