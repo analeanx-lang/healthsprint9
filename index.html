@@ -199,8 +199,8 @@ document.getElementById('sheetlink').href = SHEET_URL + '#gid=' + CONFIG.GID;
    1) gviz  — instantâneo, mas exige a planilha em "qualquer pessoa com o link"
    2) CSV publicado — sempre funciona, com 1–3 min de atraso do cache do Google */
 const FONTES = () => [
-  `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&gid=${CONFIG.GID}&_=${Date.now()}`,
-  `https://docs.google.com/spreadsheets/d/e/${CONFIG.PUB}/pub?gid=${CONFIG.GID}&single=true&output=csv&_=${Date.now()}`
+  `https://docs.google.com/spreadsheets/d/e/${CONFIG.PUB}/pub?gid=${CONFIG.GID}&single=true&output=csv&_=${Date.now()}`,
+  `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&gid=${CONFIG.GID}&_=${Date.now()}`
 ];
 
 /* ============================================================
@@ -313,6 +313,27 @@ function parseCSV(txt){
 
 /* Acha a linha de cabeçalho real (a planilha tem uma linha mesclada em cima)
    e mapeia as colunas por nome, tolerante a mudança de ordem. */
+const SIM = ['true','verdadeiro','sim','s','x','1','ok','presente','p','check','\u2713','\u2714'];
+const ehPresente = v => SIM.includes(norm(v));
+
+/* Se o cabecalho nao identificar a coluna de presenca, acha pelo conteudo:
+   a coluna com maior proporcao de valores booleanos vence. */
+function acharColunaPresenca(rows, hIdx){
+  const dados = rows.slice(hIdx+1).filter(r => r.length > 2);
+  if(!dados.length) return -1;
+  const BOOL = [...SIM, 'false','falso','nao','n','0'];
+  let melhor = -1, melhorTaxa = 0;
+  const nCols = Math.max(...dados.map(r => r.length));
+  for(let c = 0; c < nCols; c++){
+    const vals = dados.map(r => norm(r[c])).filter(Boolean);
+    if(vals.length < dados.length * 0.5) continue;
+    const taxa = vals.filter(v => BOOL.includes(v)).length / vals.length;
+    if(taxa > melhorTaxa && taxa >= 0.8){ melhorTaxa = taxa; melhor = c; }
+  }
+  return melhor;
+}
+
+let DBG = null;
 function mapRows(rows){
   const hIdx = rows.findIndex(r => r.some(c => norm(c).includes('nome completo')));
   if(hIdx < 0) throw new Error('cabeçalho não encontrado');
@@ -330,13 +351,31 @@ function mapRows(rows){
     dif:     col('maior dificuldade'),
     diag:    col('diagnostico','relatorio')
   };
+  let presAuto = false;
+  const colVazia = c => c < 0 ||
+    rows.slice(hIdx+1).every(r => !norm(r[c]) || !['true','false','verdadeiro','falso','sim','nao','x','1','0'].includes(norm(r[c])));
+  if(colVazia(i.pres)){
+    const alt = acharColunaPresenca(rows, hIdx);
+    if(alt >= 0){ i.pres = alt; presAuto = true; }
+  }
+
   const get = (r,k) => i[k] >= 0 ? (r[i[k]]||'').trim() : '';
+  DBG = {
+    totalLinhasBrutas: rows.length,
+    linhaDoCabecalho: hIdx,
+    cabecalhoDetectado: rows[hIdx].map((c,n) => n + ': ' + (c||'(vazio)')),
+    colunasMapeadas: i,
+    colunaPresencaAchadaPeloConteudo: presAuto,
+    valoresBrutosPresenca: [...new Set(rows.slice(hIdx+1).map(r => i.pres>=0 ? (r[i.pres]||'(vazio)') : '(coluna nao achada)'))].slice(0,12),
+    valoresBrutosStatus:   [...new Set(rows.slice(hIdx+1).map(r => i.status>=0 ? (r[i.status]||'(vazio)') : '(coluna nao achada)'))].slice(0,12),
+    primeiraLinhaDeDados: rows[hIdx+1]
+  };
   return rows.slice(hIdx+1)
     .filter(r => get(r,'nome'))
     .map(r => ({
       nome:get(r,'nome'), produto:get(r,'produto')||'—', form:get(r,'form'),
       status:get(r,'status')||'CONFIRMADO', email:get(r,'email'), whats:get(r,'whats'),
-      presente:['true','sim','x','1','verdadeiro'].includes(norm(get(r,'pres'))),
+      presente:ehPresente(get(r,'pres')),
       busca:get(r,'busca'), dif:get(r,'dif'),
       diag:(get(r,'diag').startsWith('http') ? get(r,'diag') : '') || linkDiag(get(r,'nome'))
     }));
@@ -424,7 +463,7 @@ async function carregar(){
   el('status').textContent = 'atualizando\u2026';
   let ok = false, viaPub = false;
   const erros = [];
-  const nomes = ['gviz', 'CSV publicado'];
+  const nomes = ['CSV publicado', 'gviz'];
 
   for(const [i, url] of FONTES().entries()){
     try{
@@ -433,7 +472,7 @@ async function carregar(){
       const txt = await r.text();
       const linhas = mapRows(parseCSV(txt));
       if(!linhas.length){ erros.push(`${nomes[i]}: leu, mas 0 linhas com nome`); continue; }
-      DADOS = linhas; ok = true; viaPub = (i === 1);
+      DADOS = linhas; ok = true; viaPub = (i === 0);
       break;
     }catch(e){
       erros.push(`${nomes[i]}: ${e.message || 'bloqueado pelo navegador'}`);
@@ -441,7 +480,7 @@ async function carregar(){
   }
 
   if(ok){
-    el('banner').style.display = viaPub ? 'block' : 'none';
+    el('banner').style.display = 'none';
     el('status').textContent = 'ao vivo';
     if(viaPub) el('banner').innerHTML =
       `<b>Lendo pelo CSV publicado.</b> Funciona, mas o Google guarda cache:
@@ -462,6 +501,18 @@ async function carregar(){
   }
   render();
   el('upd').textContent = 'Atualizado ' + new Date().toLocaleTimeString('pt-BR');
+
+  if(new URLSearchParams(location.search).has('debug')){
+    let d = document.getElementById('dbg');
+    if(!d){ d = document.createElement('pre'); d.id = 'dbg';
+      d.style.cssText = 'background:#0a1b19;border:1.5px solid #E8943A;border-radius:10px;padding:16px;margin-top:24px;font-size:11px;line-height:1.6;color:#EEF0E8;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,monospace';
+      document.querySelector('.wrap').appendChild(d);
+    }
+    d.textContent = 'FONTE USADA: ' + (ok ? (viaPub ? 'CSV publicado' : 'gviz') : 'nenhuma') +
+      '\nERROS: ' + (erros.join(' | ') || 'nenhum') +
+      '\nREGISTROS APROVEITADOS: ' + DADOS.length +
+      '\n\n' + JSON.stringify(DBG, null, 2);
+  }
 }
 
 /* eventos */
