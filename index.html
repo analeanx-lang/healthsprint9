@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Health Sprint · Check-in ao vivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d2320; --bg-2:#122b27; --bg-3:#16332e; --line:#1f453f;
+  --text:#EEF0E8; --muted:#8fa39c;
+  --gold:#E8943A; --gold-soft:rgba(232,148,58,.14);
+  --danger:#FF5C3A; --ok:#4ADE80;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:'Montserrat',system-ui,sans-serif;
+  padding:22px 18px 60px; min-height:100vh;
+}
+.wrap{max-width:1180px;margin:0 auto}
+
+/* ---------- header ---------- */
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
+.brand .kicker{font-size:9.5px;font-weight:800;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.brand h1{font-size:31px;font-weight:900;letter-spacing:-.5px;line-height:1}
+.brand .sub{font-size:11.5px;font-weight:600;color:var(--muted);margin-top:6px}
+.live{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.pulse{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.btn{
+  background:transparent;border:1.5px solid var(--line);color:var(--text);
+  font-family:inherit;font-size:10px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;
+  padding:9px 15px;border-radius:7px;cursor:pointer;transition:.15s;text-decoration:none;display:inline-block
+}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn.solid{background:var(--gold);border-color:var(--gold);color:#0d2320}
+.btn.solid:hover{filter:brightness(1.1);color:#0d2320}
+
+/* ---------- kpis ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--bg-2);border:1.5px solid var(--line);border-radius:12px;padding:16px 18px}
+.kpi .lbl{font-size:8.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+.kpi .val{font-size:38px;font-weight:900;line-height:.9;letter-spacing:-1.5px}
+.kpi .foot{font-size:10px;font-weight:700;color:var(--muted);margin-top:8px}
+.kpi.hero{background:var(--gold-soft);border-color:var(--gold)}
+.kpi.hero .val{color:var(--gold)}
+.kpi.warn .val{color:var(--danger)}
+
+.progress{background:var(--bg-2);border:1.5px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:22px}
+.progress .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px}
+.progress .top span:first-child{font-size:8.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.progress .top span:last-child{font-size:13px;font-weight:900;color:var(--gold)}
+.bar{height:9px;background:#0a1b19;border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#f6b35f);border-radius:99px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+
+/* ---------- controls ---------- */
+.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:18px}
+input[type=search]{
+  flex:1;min-width:220px;background:var(--bg-2);border:1.5px solid var(--line);
+  color:var(--text);font-family:inherit;font-size:13px;font-weight:600;
+  padding:11px 15px;border-radius:8px;outline:none
+}
+input[type=search]:focus{border-color:var(--gold)}
+input[type=search]::placeholder{color:var(--muted)}
+.chip{
+  background:var(--bg-2);border:1.5px solid var(--line);color:var(--muted);
+  font-family:inherit;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+  padding:10px 14px;border-radius:8px;cursor:pointer;transition:.15s;white-space:nowrap
+}
+.chip:hover{color:var(--text)}
+.chip.on{background:var(--gold);border-color:var(--gold);color:#0d2320}
+.chip b{font-weight:900}
+
+/* ---------- cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.card{
+  background:var(--bg-2);border:1.5px solid var(--line);border-left:4px solid var(--line);
+  border-radius:11px;padding:15px 17px;transition:.18s
+}
+.card:hover{border-color:var(--line);background:var(--bg-3)}
+.card.here{border-left-color:var(--gold)}
+.card.canc{opacity:.42;border-left-color:var(--danger)}
+.card.novo{animation:arrived 2.4s ease-out 3}
+@keyframes arrived{0%,100%{box-shadow:0 0 0 0 rgba(232,148,58,0)}45%{box-shadow:0 0 0 5px rgba(232,148,58,.28)}}
+.card .row1{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card .nome{font-size:14.5px;font-weight:800;line-height:1.25}
+.tag{font-size:7.5px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase;padding:4px 9px;border-radius:99px;white-space:nowrap}
+.tag.here{background:var(--gold);color:#0d2320}
+.tag.wait{background:var(--bg-3);color:var(--muted);border:1px solid var(--line)}
+.tag.canc{background:transparent;color:var(--danger);border:1px solid var(--danger)}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.meta span{font-size:8px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:3px 8px;border-radius:5px}
+.qa{margin-top:12px;padding-top:11px;border-top:1px solid var(--line);display:grid;gap:9px}
+.qa .q{font-size:7.5px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.qa .a{font-size:12px;font-weight:600;line-height:1.45;color:var(--text)}
+.qa .a.empty{color:var(--muted);font-style:italic;font-weight:500}
+
+.diag{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  margin-top:12px;padding:10px;border-radius:8px;text-decoration:none;
+  background:var(--gold);color:#0d2320;
+  font-size:9.5px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase;transition:.15s
+}
+.diag:hover{filter:brightness(1.12)}
+.diag.off{background:transparent;border:1.5px dashed var(--line);color:var(--muted);cursor:not-allowed;letter-spacing:1.2px}
+
+.empty-state{text-align:center;padding:52px 20px;color:var(--muted);font-size:13px;font-weight:600}
+
+/* ---------- breakdown ---------- */
+.section-title{font-size:9px;font-weight:900;letter-spacing:2.4px;text-transform:uppercase;color:var(--muted);margin:30px 0 12px}
+.prods{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.prod{background:var(--bg-2);border:1.5px solid var(--line);border-radius:10px;padding:13px 15px}
+.prod .n{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.prod .v{font-size:22px;font-weight:900}
+.prod .v small{font-size:12px;font-weight:700;color:var(--muted)}
+
+/* ---------- banner ---------- */
+.banner{
+  background:var(--gold-soft);border:1.5px solid var(--gold);border-radius:10px;
+  padding:12px 16px;margin-bottom:18px;font-size:11.5px;font-weight:700;line-height:1.5;color:var(--gold)
+}
+.banner code{background:rgba(0,0,0,.3);padding:2px 6px;border-radius:4px;font-size:10.5px;font-family:ui-monospace,monospace}
+.banner a{color:var(--gold)}
+footer{margin-top:38px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+footer span{font-size:7.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+footer span.tag-gh::before{content:'';display:inline-block;width:5px;height:5px;background:var(--gold);margin-right:7px;vertical-align:middle}
+@media(max-width:600px){.brand h1{font-size:24px}.kpi .val{font-size:30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="kicker">Make Brazil Healthy Again</div>
+      <h1>Health Sprint · Check-in</h1>
+      <div class="sub">Turma 9 — 31 de julho de 2026</div>
+    </div>
+    <div class="live">
+      <div class="pulse"><i class="dot"></i><span id="status">conectando…</span></div>
+      <button class="btn" id="refresh">Atualizar</button>
+      <a class="btn" id="folderlink" target="_blank" rel="noopener">Pasta de diagnósticos</a>
+      <a class="btn solid" id="sheetlink" target="_blank" rel="noopener">Abrir planilha</a>
+    </div>
+  </header>
+
+  <div id="banner" class="banner" style="display:none"></div>
+
+  <div class="kpis">
+    <div class="kpi hero"><div class="lbl">Presentes</div><div class="val" id="k-presentes">–</div><div class="foot" id="k-presentes-f">&nbsp;</div></div>
+    <div class="kpi"><div class="lbl">Aguardando</div><div class="val" id="k-pend">–</div><div class="foot">ainda não fizeram check-in</div></div>
+    <div class="kpi"><div class="lbl">Confirmados</div><div class="val" id="k-conf">–</div><div class="foot">base esperada do dia</div></div>
+    <div class="kpi warn"><div class="lbl">Cancelados</div><div class="val" id="k-canc">–</div><div class="foot">fora da lista</div></div>
+  </div>
+
+  <div class="progress">
+    <div class="top"><span>Taxa de comparecimento</span><span id="pct">0%</span></div>
+    <div class="bar"><i id="barfill" style="width:0%"></i></div>
+  </div>
+
+  <div class="controls">
+    <input type="search" id="busca" placeholder="Buscar por nome, produto ou e-mail…" autocomplete="off">
+    <button class="chip on" data-f="here">Presentes <b id="c-here">0</b></button>
+    <button class="chip" data-f="wait">Aguardando <b id="c-wait">0</b></button>
+    <button class="chip" data-f="canc">Cancelados <b id="c-canc">0</b></button>
+    <button class="chip" data-f="all">Todos <b id="c-all">0</b></button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="section-title">Presença por produto</div>
+  <div class="prods" id="prods"></div>
+
+  <footer>
+    <span class="tag-gh">Health Sprint · Turma 9</span>
+    <span id="diagcount">—</span>
+    <span id="upd">—</span>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — trocar só isto
+   ============================================================ */
+const CONFIG = {
+  SHEET_ID: '11uNYcl4qpjRdQZkAZU2ypseye5gxsdvbshuNuLynS30',
+  GID: '1445268578',                       // aba "DIA DO EVENTO"
+  PUB: '2PACX-1vTkc0fpVWvu2SG9GyypJwPVxTrKnbZybcKsc0diCvs-wlW6LcOTFC7vjC_yp8Aifb2CYjKmCwAYPcK2',
+  REFRESH_SEG: 30
+};
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/edit`;
+document.getElementById('sheetlink').href = SHEET_URL + '#gid=' + CONFIG.GID;
+
+/* Duas fontes, nesta ordem:
+   1) gviz  — instantâneo, mas exige a planilha em "qualquer pessoa com o link"
+   2) CSV publicado — sempre funciona, com 1–3 min de atraso do cache do Google */
+const FONTES = () => [
+  `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&gid=${CONFIG.GID}&_=${Date.now()}`,
+  `https://docs.google.com/spreadsheets/d/e/${CONFIG.PUB}/pub?gid=${CONFIG.GID}&single=true&output=csv&_=${Date.now()}`
+];
+
+/* ============================================================
+   DIAGNÓSTICOS — pasta "RELATÓRIOS DIAGNOSTICOS ALUNOS" no Drive
+   Se a aba do dia tiver uma coluna "Diagnóstico" com a URL,
+   ela tem prioridade sobre este mapa.
+   Para adicionar: "nome da pessoa": "ID DO ARQUIVO NO DRIVE"
+   ============================================================ */
+const norm = s => (s||'').toString().trim().toLowerCase()
+  .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+
+const DIAG_FOLDER = 'https://drive.google.com/drive/folders/1oERFFcMo0i9kqqfdrR6bZ4GWPgrtfjvB';
+document.getElementById('folderlink').href = DIAG_FOLDER;
+const DIAG = {
+  'jessica sierra':                  '1RgPAjjv_586CLy_SJhMP7s7HouCodfdT',
+  'carolina braga':                  '1ilHGL5h2I_60zBfOkTfq6SeyticLx_dl',
+  'carlos francisco barroso torres': '1wX6slbzSBDZim7eD99w7QxD7AVJkVkdy',
+  'ane karoline ranzi':              '1Or4eEfHrIoHmZlIy5WIyLIrY_16AFcpB',
+  'emily paola':                     '1MncdECyhgiVeefFaMOjtlQJGQqw3pO8E',
+  'juliana lopes da cruz rocha':     '18RrERh2z25BcgX7kpY_lH0g5S0sAUQUR',
+  'vinicius mello':                  '1pdACR5CfbrXjuYFwOQ7Uzxx2nq-rA48b',
+  'ana luiza carvalho':              '1Q1PWcu8puLH7vHNCOk0VXjiPdLolSQB7',
+  'elisa soares':                    '1VdPDZ5gBnIlnV4bgAZ8o_sXJzisjzrKD',
+  'frederico teixeira izidorio':     '1YYG-iMosgvZMd2y72lq3T5cNNYVV5Jrp',
+  /* turmas anteriores — não estão na lista de hoje, mas ficam mapeados */
+  'luiza pereira lopes':             '1j90syuAkQUNDUbY1HFZJ86C99nkkqfj5',
+  'amir saado':                      '1CGwXP8xm5s1SlEfWf1DXe3sKOmvU6NOy',
+  'francisco barcelos junior':       '1pHv9Pgndza2Y6-67AOHL2A-8NBIH6gPj',
+  'leandro dias goncalves ruffoni':  '1WHDqqBt4CC0cC7hpg8WUcUZss_84ei8j',
+  'deisy sewruk trizi':              '1T619d3j2Ll3LXbzthoRq79U3RA7U9ErG'
+};
+const linkDiag = nome => {
+  const n = norm(nome);
+  if(DIAG[n]) return `https://drive.google.com/file/d/${DIAG[n]}/view`;
+  /* tolera variação de nome: casa por primeiro + último sobrenome */
+  const p = n.split(/\s+/);
+  const chave = Object.keys(DIAG).find(k => {
+    const q = k.split(/\s+/);
+    return q[0] === p[0] && q[q.length-1] === p[p.length-1];
+  });
+  return chave ? `https://drive.google.com/file/d/${DIAG[chave]}/view` : '';
+};
+
+/* ============================================================
+   SNAPSHOT DE DEMONSTRAÇÃO (usado se o CSV não carregar)
+   ============================================================ */
+const DEMO = [
+["Acaua santos","Health Club","Preenchido","CONFIRMADO","acaua@acauamedia.com","54 9 11 7602-2758","FALSE","",""],
+["Amanda Teixeira","Convidado","Preenchido","CONFIRMADO","felipethereza@yahoo.com.br","5531991210680","FALSE","",""],
+["Ana Beatriz Tramontina Machado Silva","Health Club","Preenchido","CANCELADO","Anabtramontina@gmail.com","5547999912059","FALSE","",""],
+["Ana Luiza Carvalho","Health Club","Preenchido","CONFIRMADO","analuizacarvalho19@gmail.com","5516991696009","FALSE","",""],
+["Ane Karoline Ranzi","Health Club","Preenchido","CONFIRMADO","anekruba@gmail.com","54 9 11 3334-9462","FALSE","",""],
+["Anna Carolina Polloni","Health Club","Preenchido","CONFIRMADO","carolchiorino@hotmail.com","5511995387757","FALSE","",""],
+["Bruno Bindi","Health Club","Preenchido","CONFIRMADO","bindimed@gmail.com","5511963802423","FALSE","",""],
+["Camila Porto Oliveira","Health Club","Preenchido","CONFIRMADO","camilapo@me.com","+5571996292706","FALSE","",""],
+["Carolina Braga","Health Club","Não Realizou","CONFIRMADO","","+55 19 99811-1992","TRUE","ESTRUTURAÇÃO LOW TICKET","COLOCAR NA PLATAFORMA"],
+["Caroline Ringvelski","Health Society","Não Realizou","CONFIRMADO","","+55 41 9647-1578","FALSE","",""],
+["Carlos Francisco Barroso Torres","Master GH","Preenchido","CONFIRMADO","carlosfbtorres@hotmail.com","5579988753282","TRUE","ESTRATÉGIA",""],
+["Danielle Mendonça Andrade Vigiano","Health Society","Preenchido","CONFIRMADO","danielle_mendonca@ymail.com","5511942024659","FALSE","",""],
+["Diego Augusto Ramos Azevedo","Health Society","Preenchido","CONFIRMADO","drdiegoramosa@gmail.com","+5562981218351","TRUE","CRESCIMENTO NO DIGITAL","CONSTÂNCIA, QUERER FAZER PERFEITO"],
+["Eder ferreira","Health Club","Preenchido","CONFIRMADO","Ederferreiramt@hotmail.com","+55 65 9922-1284","FALSE","",""],
+["Elisa Soares","Health Club","Preenchido","CANCELADO","elisapalhano@hotmail.com","5527981828160","FALSE","",""],
+["Emily Paola","Health Club","Não Realizou","CONFIRMADO","","+55 11 92499-1706","FALSE","",""],
+["Felipe Thereza","Health Club","Preenchido","CONFIRMADO","felipethereza@yahoo.com.br","5531991210680","FALSE","",""],
+["Fernando Campos Cunha Gonçalves","Health Club","Preenchido","CONFIRMADO","fernandoccg.med@gmail.com","5511981878610","TRUE","APRENDIZADO EM MÍDIAS SOCIAIS E INFOPRODUTOS","INICIAR NO DIGITAL"],
+["Frederico Teixeira Izidorio","Health Club","Preenchido","CANCELADO","fredericoizidorio@hotmail.com","5534991285521","FALSE","",""],
+["Janisa Ramos","Health Club","Preenchido","CONFIRMADO","Jaciara_marcolino@hotmail.com","5511954468426","FALSE","",""],
+["Jessica Sierra","Health Club","Preenchido","CONFIRMADO","Jessicasfc@hotmail.com","5519981389655","TRUE","MELHORAR CAPTAÇÃO DE PACIENTES NO DIGITAL","FAZER AS POSTAGENS, DISCIPLINA"],
+["Juliana lopes da cruz rocha","Health Society","Preenchido","CONFIRMADO","juu-lopes@hotmail.com","5571993345905","FALSE","",""],
+["Manoel Felipe Quintino Rodrigues da Silva","Master GH","Preenchido","CONFIRMADO","mfqrodrigues@gmail.com","5511981863030","TRUE","ESTRUTURAÇÃO LOW TICKET, LANÇAMENTO","ECONOMIZAR ENERGIA MENTAL"],
+["Marcel nunes","Health Club","Preenchido","CONFIRMADO","drmarcelnunes@hotmail.con","5511971909720","FALSE","",""],
+["Marlon Anderson santos batista","Master GH","Preenchido","CANCELADO","Dr.marlonbatista@gmail.com","5579996764033","FALSE","",""],
+["Olivia Costa Ribeiro de Oliveira","Master GH","Preenchido","CONFIRMADO","oliviacostaro@gmail.com","5562999051615","FALSE","",""],
+["Paulo Ney Sierra","Health Club","Preenchido","CONFIRMADO","pn_sierra@hotmail.com","5519993909740","TRUE","DESTRAVAR NO DIGITAL","SE INTEGRAR MELHOR NO DIGITAL"],
+["Rafael Hamada Leite","Health Club","Preenchido","CONFIRMADO","rhamadaleite@outlook.com","5518991527613","FALSE","",""],
+["Rafael Ultramar","Master GH","Preenchido","CONFIRMADO","ultramar.rafael@gmail.com","5511956473432","FALSE","",""],
+["Ronald Rocha da Silva","Health Society","Preenchido","CONFIRMADO","ronaldrocha5@hotmail.com","5571991083072","FALSE","",""],
+["Silvério Rodrigues calaca","Master GH","Preenchido","CONFIRMADO","Silverio-13@hormail.com","5587999028205","FALSE","",""],
+["Steven Queiroz Miranda","Master GH","Preenchido","CONFIRMADO","Stevenqmiranda@gmail.com","5531994530207","FALSE","",""],
+["Tatiana silva schmuziger","Health Club","Preenchido","CONFIRMADO","Tschmuziger@gmail.com","5511999000731","FALSE","",""],
+["Valter da silva cardoso filho","Health Club","Preenchido","CONFIRMADO","cardoso_valter@hotmail.com","+5573999468900","FALSE","",""],
+["Vinicius Mello","Master GH","Preenchido","CONFIRMADO","mellovinicius@hotmail.com","5562996151615","FALSE","",""],
+["Youssef Khalil","Health Club","Preenchido","CONFIRMADO","youssefmkhalil@hotmail.com","5513996012230","FALSE","",""],
+["Curt Vieira","—","","CONFIRMADO","","","TRUE","ideias para low ticket, estruturação de ideias, potencializar instagram","CONCILIAR FÍSICO COM DIGITAL"]
+].map(r => ({
+  nome:r[0], produto:r[1], form:r[2], status:r[3], email:r[4],
+  whats:r[5], presente:r[6]==='TRUE', busca:r[7], dif:r[8], diag:linkDiag(r[0])
+}));
+
+/* ============================================================
+   CSV parser
+   ============================================================ */
+function parseCSV(txt){
+  const rows=[]; let row=[], cell='', q=false;
+  for(let i=0;i<txt.length;i++){
+    const c=txt[i];
+    if(q){
+      if(c==='"'){ if(txt[i+1]==='"'){cell+='"';i++;} else q=false; }
+      else cell+=c;
+    } else {
+      if(c==='"') q=true;
+      else if(c===','){ row.push(cell); cell=''; }
+      else if(c==='\n'){ row.push(cell); rows.push(row); row=[]; cell=''; }
+      else if(c!=='\r') cell+=c;
+    }
+  }
+  if(cell!==''||row.length){ row.push(cell); rows.push(row); }
+  return rows;
+}
+
+/* Acha a linha de cabeçalho real (a planilha tem uma linha mesclada em cima)
+   e mapeia as colunas por nome, tolerante a mudança de ordem. */
+function mapRows(rows){
+  const hIdx = rows.findIndex(r => r.some(c => norm(c).includes('nome completo')));
+  if(hIdx < 0) throw new Error('cabeçalho não encontrado');
+  const H = rows[hIdx].map(norm);
+  const col = (...keys) => H.findIndex(h => keys.some(k => h.includes(k)));
+  const i = {
+    nome:    col('nome completo','nome'),
+    produto: col('produto'),
+    form:    col('formulario'),
+    status:  col('status'),
+    email:   col('e-mail','email'),
+    whats:   col('whatsapp','telefone'),
+    pres:    col('presenca','presença','presenca:'),
+    busca:   col('busca hoje','o que voce busca'),
+    dif:     col('maior dificuldade'),
+    diag:    col('diagnostico','relatorio')
+  };
+  const get = (r,k) => i[k] >= 0 ? (r[i[k]]||'').trim() : '';
+  return rows.slice(hIdx+1)
+    .filter(r => get(r,'nome'))
+    .map(r => ({
+      nome:get(r,'nome'), produto:get(r,'produto')||'—', form:get(r,'form'),
+      status:get(r,'status')||'CONFIRMADO', email:get(r,'email'), whats:get(r,'whats'),
+      presente:['true','sim','x','1','verdadeiro'].includes(norm(get(r,'pres'))),
+      busca:get(r,'busca'), dif:get(r,'dif'),
+      diag:(get(r,'diag').startsWith('http') ? get(r,'diag') : '') || linkDiag(get(r,'nome'))
+    }));
+}
+
+/* ============================================================
+   Estado + render
+   ============================================================ */
+let DADOS = [], FILTRO = 'here', JA_PRESENTES = new Set(), primeiraCarga = true;
+
+const el = id => document.getElementById(id);
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
+const cancelado = p => norm(p.status).includes('cancel');
+
+function render(){
+  const q = norm(el('busca').value);
+  const conf   = DADOS.filter(p => !cancelado(p));
+  const here   = conf.filter(p => p.presente);
+  const wait   = conf.filter(p => !p.presente);
+  const canc   = DADOS.filter(cancelado);
+  const pct    = conf.length ? Math.round(here.length / conf.length * 100) : 0;
+
+  el('k-presentes').textContent = here.length;
+  el('k-presentes-f').textContent = `de ${conf.length} confirmados`;
+  el('k-pend').textContent = wait.length;
+  el('k-conf').textContent = conf.length;
+  el('k-canc').textContent = canc.length;
+  el('pct').textContent = pct + '%';
+  el('barfill').style.width = pct + '%';
+  el('c-here').textContent = here.length;
+  el('c-wait').textContent = wait.length;
+  el('c-canc').textContent = canc.length;
+  el('c-all').textContent  = DADOS.length;
+
+  const base = FILTRO==='here' ? here : FILTRO==='wait' ? wait : FILTRO==='canc' ? canc : DADOS;
+  const lista = base.filter(p => !q ||
+      norm(p.nome).includes(q) || norm(p.produto).includes(q) || norm(p.email).includes(q))
+    .sort((a,b) => a.nome.localeCompare(b.nome,'pt-BR'));
+
+  el('grid').innerHTML = lista.length ? lista.map(p => {
+    const c = cancelado(p) ? 'canc' : p.presente ? 'here' : '';
+    const novo = p.presente && !primeiraCarga && !JA_PRESENTES.has(p.nome) ? ' novo' : '';
+    const tag = cancelado(p)
+      ? '<span class="tag canc">Cancelado</span>'
+      : p.presente ? '<span class="tag here">Presente</span>'
+                   : '<span class="tag wait">Aguardando</span>';
+    const qa = p.presente ? `
+      <div class="qa">
+        <div><div class="q">O que busca hoje</div>
+          <div class="a${p.busca?'':' empty'}">${p.busca ? cap(p.busca) : 'não respondeu'}</div></div>
+        <div><div class="q">Maior dificuldade</div>
+          <div class="a${p.dif?'':' empty'}">${p.dif ? cap(p.dif) : 'não respondeu'}</div></div>
+      </div>` : '';
+    const btn = cancelado(p) ? '' : p.diag
+      ? `<a class="diag" href="${p.diag}" target="_blank" rel="noopener">▤ Abrir diagnóstico</a>`
+      : `<div class="diag off">sem diagnóstico no Drive</div>`;
+    return `<div class="card ${c}${novo}">
+      <div class="row1"><div class="nome">${p.nome}</div>${tag}</div>
+      <div class="meta">
+        <span>${p.produto}</span>
+        ${p.form && norm(p.form).includes('nao') ? '<span>sem formulário</span>' : ''}
+      </div>${qa}${btn}
+    </div>`;
+  }).join('') : '<div class="empty-state">Ninguém nesta lista ainda.</div>';
+
+  /* presença por produto */
+  const prods = {};
+  conf.forEach(p => {
+    prods[p.produto] = prods[p.produto] || {t:0,h:0};
+    prods[p.produto].t++; if(p.presente) prods[p.produto].h++;
+  });
+  el('prods').innerHTML = Object.entries(prods)
+    .sort((a,b) => b[1].t - a[1].t)
+    .map(([n,v]) => `<div class="prod"><div class="n">${n}</div>
+      <div class="v">${v.h}<small> / ${v.t}</small></div></div>`).join('');
+
+  const comDiag = conf.filter(p => p.diag).length;
+  el('diagcount').textContent = `${comDiag} de ${conf.length} com diagnóstico`;
+
+  JA_PRESENTES = new Set(here.map(p => p.nome));
+  primeiraCarga = false;
+}
+
+async function carregar(){
+  el('status').textContent = 'atualizando\u2026';
+  let ok = false, viaPub = false;
+  const erros = [];
+  const nomes = ['gviz', 'CSV publicado'];
+
+  for(const [i, url] of FONTES().entries()){
+    try{
+      const r = await fetch(url);
+      if(!r.ok){ erros.push(`${nomes[i]}: HTTP ${r.status}`); continue; }
+      const txt = await r.text();
+      const linhas = mapRows(parseCSV(txt));
+      if(!linhas.length){ erros.push(`${nomes[i]}: leu, mas 0 linhas com nome`); continue; }
+      DADOS = linhas; ok = true; viaPub = (i === 1);
+      break;
+    }catch(e){
+      erros.push(`${nomes[i]}: ${e.message || 'bloqueado pelo navegador'}`);
+    }
+  }
+
+  if(ok){
+    el('banner').style.display = viaPub ? 'block' : 'none';
+    el('status').textContent = 'ao vivo';
+    if(viaPub) el('banner').innerHTML =
+      `<b>Lendo pelo CSV publicado.</b> Funciona, mas o Google guarda cache:
+       marca\u00e7\u00f5es novas de presen\u00e7a podem levar 1 a 3 minutos pra aparecer aqui.
+       Pra ficar instant\u00e2neo, deixe a planilha em <i>"qualquer pessoa com o link pode ver"</i>.`;
+  } else {
+    DADOS = DEMO;
+    el('status').textContent = 'sem conex\u00e3o';
+    el('banner').style.display = 'block';
+    const local = location.protocol === 'file:';
+    el('banner').innerHTML =
+      `<b>N\u00e3o consegui ler a planilha.</b> Mostrando o \u00faltimo retrato conhecido.<br>` +
+      (local
+        ? `Voc\u00ea abriu o arquivo direto do computador (<code>file://</code>) \u2014 o navegador bloqueia
+           conex\u00f5es externas nesse modo. Suba pro Netlify que resolve.`
+        : `Se estiver vendo isto dentro de um preview, teste na URL publicada.`) +
+      `<br><span style="opacity:.75;font-weight:600">${erros.join(' \u00b7 ')}</span>`;
+  }
+  render();
+  el('upd').textContent = 'Atualizado ' + new Date().toLocaleTimeString('pt-BR');
+}
+
+/* eventos */
+el('busca').addEventListener('input', render);
+el('refresh').addEventListener('click', carregar);
+document.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); FILTRO = b.dataset.f; render();
+}));
+
+carregar();
+setInterval(carregar, CONFIG.REFRESH_SEG * 1000);
+</script>
+</body>
+</html>
